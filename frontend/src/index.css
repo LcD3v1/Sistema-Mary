@@ -1,0 +1,452 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg:    #050505;
+  --color-sb:    #0a0a0a;
+  --color-card:  #111111;
+  --color-card2: #171717;
+  --color-bdr:   #1e1e1e;
+  --color-bdr2:  #2a2a2a;
+  --color-bdrg:  #3a3a3a;
+  --color-txt:   #e8e8e8;
+  --color-txt2:  #787878;
+  --color-txt3:  #404040;
+  --color-gold:  #c9a227;
+  --color-gold2: #ddbb4a;
+  --color-gold3: #f0d989;
+  --color-green: #27ae60;
+  --color-red:   #c0392b;
+  --color-blue:  #2980b9;
+}
+
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+:root {
+  --bg:    #050505;
+  --sb:    #0a0a0a;
+  --card:  #111111;
+  --card2: #171717;
+  --bdr:   #1e1e1e;
+  --bdr2:  #2a2a2a;
+  --bdrg:  #3a3a3a;
+  --txt:   #e8e8e8;
+  --txt2:  #787878;
+  --txt3:  #404040;
+  --gold:  #c9a227;
+  --gold2: #ddbb4a;
+  --gold3: #f0d989;
+  --green: #27ae60;
+  --red:   #c0392b;
+  --blue:  #2980b9;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--txt);
+  font-family: 'Inter', sans-serif;
+  min-width: 1024px;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .font-orbitron {
+  font-family: 'Orbitron', sans-serif;
+}
+
+.font-mono, code {
+  font-family: 'Share Tech Mono', monospace;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Scrollbar customizado ─────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--sb); }
+::-webkit-scrollbar-thumb { background: var(--bdrg); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+/* ── Scanlines ─────────────────────────────────────────────────── */
+.scanlines-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.10) 2px,
+    rgba(0, 0, 0, 0.10) 4px
+  );
+}
+
+/* ── HUD corners ──────────────────────────────────────────────── */
+.hud-corners {
+  position: relative;
+}
+.hud-corners::before,
+.hud-corners::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: var(--gold);
+  border-style: solid;
+  opacity: 0.7;
+}
+.hud-corners::before { top: 0; left: 0; border-width: 2px 0 0 2px; }
+.hud-corners::after  { bottom: 0; right: 0; border-width: 0 2px 2px 0; }
+
+/* ── Cyber card (neon sharp / ciberpunk) ─────────────────────── */
+.cyber-card-wrap {
+  filter: drop-shadow(0 0 3px rgba(201,162,39,0.12));
+  transition: filter 0.35s ease;
+}
+.cyber-card-wrap:hover {
+  filter:
+    drop-shadow(0 0 10px rgba(201,162,39,0.55))
+    drop-shadow(0 0 26px rgba(201,162,39,0.18));
+}
+
+.cyber-card {
+  --cut: 12px;
+  position: relative;
+  background:
+    linear-gradient(90deg, transparent 6%, rgba(201,162,39,0.55) 50%, transparent 94%) top / 100% 2px no-repeat,
+    radial-gradient(130% 90% at 50% -12%, rgba(201,162,39,0.07), transparent 62%),
+    linear-gradient(158deg, #191921 0%, #131318 42%, #0e0e12 100%);
+  border: 1px solid rgba(201,162,39,0.22);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    inset 0 0 40px rgba(0,0,0,0.45);
+  clip-path: polygon(
+    var(--cut) 0%,
+    100% 0%,
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    0% 100%,
+    0% var(--cut)
+  );
+  transition: border-color 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
+  overflow: hidden;
+}
+.cyber-card-wrap:hover .cyber-card {
+  border-color: rgba(201,162,39,0.6);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    inset 0 0 40px rgba(201,162,39,0.06),
+    inset 0 -40px 60px rgba(0,0,0,0.35);
+}
+
+/* Linha diagonal decorativa nos cantos cortados */
+.cyber-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: var(--cut);
+  height: var(--cut);
+  background: linear-gradient(
+    135deg,
+    transparent 0%,
+    transparent calc(50% - 0.5px),
+    rgba(201,162,39,0.45) calc(50% - 0.5px),
+    rgba(201,162,39,0.45) calc(50% + 0.5px),
+    transparent calc(50% + 0.5px)
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+.cyber-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; right: 0;
+  width: var(--cut);
+  height: var(--cut);
+  background: linear-gradient(
+    315deg,
+    transparent 0%,
+    transparent calc(50% - 0.5px),
+    rgba(201,162,39,0.45) calc(50% - 0.5px),
+    rgba(201,162,39,0.45) calc(50% + 0.5px),
+    transparent calc(50% + 0.5px)
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Hex grid background ─────────────────────────────────────── */
+.hex-grid-bg {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='52' viewBox='0 0 60 52'%3E%3Cpolygon points='30,1 58,16 58,46 30,51 2,46 2,16' fill='none' stroke='%23c9a227' stroke-width='0.4' opacity='0.15'/%3E%3C/svg%3E");
+  background-size: 60px 52px;
+}
+
+/* ── Input focus glow ─────────────────────────────────────────── */
+.input-gold:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold), 0 0 12px rgba(201,162,39,0.25);
+}
+
+/* ── Pulse animation ─────────────────────────────────────────── */
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201,162,39, 0.4); }
+  50%       { box-shadow: 0 0 0 8px rgba(201,162,39, 0); }
+}
+.pulse-gold { animation: pulse-gold 2s ease-in-out infinite; }
+
+/* ── Range slider customizado ────────────────────────────────── */
+input[type=range].hud-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: var(--bdrg);
+  border-radius: 2px;
+  outline: none;
+}
+input[type=range].hud-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--gold);
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(201,162,39,0.6);
+  border: 2px solid var(--gold3);
+}
+input[type=range].hud-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--gold);
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(201,162,39,0.6);
+  border: 2px solid var(--gold3);
+}
+
+/* ── Logo ring ───────────────────────────────────────────────── */
+.logo-ring {
+  border-radius: 50%;
+  border: 3px solid var(--gold);
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 0 28px rgba(201,162,39,0.5), 0 0 60px rgba(201,162,39,0.2);
+  animation: logoPulse 3s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0%, 100% { box-shadow: 0 0 28px rgba(201,162,39,0.5), 0 0 60px rgba(201,162,39,0.2); }
+  50%       { box-shadow: 0 0 40px rgba(201,162,39,0.8), 0 0 80px rgba(201,162,39,0.4); }
+}
+
+.logo-circle {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+.logo-fallback {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gold);
+  text-align: center;
+  line-height: 1.3;
+  letter-spacing: 1px;
+}
+
+/* ── Logo drop area ──────────────────────────────────────────── */
+.logo-drop-area {
+  border: 2px dashed var(--bdrg);
+  border-radius: 12px;
+  padding: 32px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.3s, background 0.3s, box-shadow 0.3s;
+}
+.logo-drop-area:hover,
+.logo-drop-area.drag-active {
+  border-color: var(--gold);
+  background: rgba(201,162,39,0.05);
+  box-shadow: 0 0 20px rgba(201,162,39,0.15);
+}
+.logo-drop-area.error {
+  border-color: var(--red);
+  box-shadow: 0 0 12px rgba(192,57,43,0.3);
+}
+
+/* ── Typing cursor ────────────────────────────────────────────── */
+@keyframes blink {
+  50% { opacity: 0; }
+}
+.cursor-blink::after {
+  content: '|';
+  animation: blink 1s step-end infinite;
+  color: var(--gold);
+  margin-left: 2px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   TACTICAL HUD REDESIGN v3
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Fundo tático global (textura HUD gerada) ───────────────────── */
+.tactical-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(rgba(5, 5, 5, 0.70), rgba(5, 5, 5, 0.90)),
+    url('/textures/hud-texture.webp');
+  background-size: cover;
+  background-position: center;
+}
+.tactical-backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 38%, transparent 42%, rgba(5, 5, 5, 0.60) 100%);
+}
+
+/* ── Moldura HUD do viewport (cantos em L) ───────────────────────── */
+.hud-frame {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+}
+.hud-frame > span {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-color: rgba(201, 162, 39, 0.5);
+  border-style: solid;
+  border-width: 0;
+}
+.hud-frame .tl { top: 7px;    left: 7px;  border-top-width: 2px;    border-left-width: 2px; }
+.hud-frame .tr { top: 7px;    right: 7px; border-top-width: 2px;    border-right-width: 2px; }
+.hud-frame .bl { bottom: 7px; left: 7px;  border-bottom-width: 2px; border-left-width: 2px; }
+.hud-frame .br { bottom: 7px; right: 7px; border-bottom-width: 2px; border-right-width: 2px; }
+
+/* ── Brackets de canto nos cards (aparecem no hover) ─────────────── */
+.cyber-card-wrap::before,
+.cyber-card-wrap::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: var(--gold);
+  border-style: solid;
+  border-width: 0;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  z-index: 3;
+  pointer-events: none;
+}
+.cyber-card-wrap::before { top: -2px;    right: -2px; border-top-width: 2px;    border-right-width: 2px; }
+.cyber-card-wrap::after  { bottom: -2px; left: -2px;  border-bottom-width: 2px; border-left-width: 2px; }
+.cyber-card-wrap:hover::before,
+.cyber-card-wrap:hover::after { opacity: 0.9; }
+
+/* ── Scan sweep animado dentro do card (no hover) ────────────────── */
+.card-hud {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+.card-hud::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201, 162, 39, 0.9), transparent);
+  opacity: 0;
+}
+.cyber-card-wrap:hover .card-hud::before {
+  animation: cardScan 2.2s linear infinite;
+}
+@keyframes cardScan {
+  0%   { top: 0%;   opacity: 0; }
+  15%  { opacity: 0.75; }
+  85%  { opacity: 0.75; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* ── Status dot pulsante (readouts HUD) ──────────────────────────── */
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: statusPulse 1.6s ease-in-out infinite;
+}
+.status-dot.gold { background: var(--gold); box-shadow: 0 0 6px var(--gold); }
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.25; }
+}
+
+/* ── Divisor tático (cabeçalhos de página) ───────────────────────── */
+.tactical-divider {
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(90deg,
+    var(--gold) 0%,
+    rgba(201, 162, 39, 0.18) 28%,
+    transparent 70%);
+}
+
+/* ── Ticker de leitura (topbar) ──────────────────────────────────── */
+.hud-readout {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--txt2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-hud::before,
+  .status-dot,
+  .logo-ring,
+  .pulse-gold { animation: none !important; }
+}
+
+/* ── Entrada de linha (compatível com dnd-kit) ──────────────────── */
+@keyframes rowFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.row-fade-in {
+  animation: rowFadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+  animation-delay: calc(var(--row-i, 0) * 40ms);
+}
