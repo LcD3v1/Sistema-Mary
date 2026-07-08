@@ -16,7 +16,7 @@ const NAV_ITEMS = [
   { to: '/acoes/historico',    icon: History,          label: 'Histórico',            section: 'GERAL',     minNivel: 'membro'    as Nivel, viewOnly: false },
   { to: '/apreensao',          icon: Lock,             label: 'Apreensão',            section: 'OPERAÇÕES', minNivel: 'membro'    as Nivel, viewOnly: false },
   { to: '/estatisticas',       icon: BarChart2,        label: 'Relatórios',           section: 'OPERAÇÕES', minNivel: 'membro'    as Nivel, viewOnly: true  },
-  { to: '/recrutamento',       icon: UserPlus,         label: 'Recrutamento',         section: 'PESSOAL',   minNivel: 'membro'    as Nivel, viewOnly: false },
+  { to: '/recrutamento',       icon: UserPlus,         label: 'Recrutamento',         section: 'PESSOAL',   minNivel: 'moderador' as Nivel, viewOnly: false },
   { to: '/membros',            icon: Users,            label: 'Membros',              section: 'PESSOAL',   minNivel: 'membro'    as Nivel, viewOnly: true  },
   { to: '/relatorios-membros', icon: ClipboardList,    label: 'Relatório de Membros', section: 'PESSOAL',   minNivel: 'membro'    as Nivel, viewOnly: false },
   { to: '/configuracoes',      icon: Settings,         label: 'Configurações',        section: 'PESSOAL',   minNivel: 'moderador' as Nivel, viewOnly: false },

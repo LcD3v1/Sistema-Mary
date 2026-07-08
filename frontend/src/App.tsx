@@ -70,10 +70,10 @@ export default function App() {
             } />
             <Route path="estatisticas" element={<EstatisticasPage />} />
             <Route path="recrutamento" element={
-              <ProtectedRoute minNivel="membro"><RecrutamentoPage /></ProtectedRoute>
+              <ProtectedRoute minNivel="moderador"><RecrutamentoPage /></ProtectedRoute>
             } />
             <Route path="recrutamento/:id" element={
-              <ProtectedRoute minNivel="membro"><RecrutaCandidatoPage /></ProtectedRoute>
+              <ProtectedRoute minNivel="moderador"><RecrutaCandidatoPage /></ProtectedRoute>
             } />
             <Route path="apreensao" element={
               <ProtectedRoute minNivel="membro"><ApreensaoPage /></ProtectedRoute>
