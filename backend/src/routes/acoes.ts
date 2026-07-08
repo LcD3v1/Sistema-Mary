@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express'
 import { requireAuth } from '../middleware/auth'
-import { modOrAdmin, noViewOnly } from '../middleware/roles'
+import { requirePerm } from '../middleware/permissoes'
 import { validateBody, acaoSchema } from '../middleware/validate'
 import { audit } from '../security/audit'
 import { readData, writeData } from '../data'
@@ -8,7 +8,7 @@ import { Acao } from '../types'
 
 const router = Router()
 
-router.get('/export/csv', requireAuth, modOrAdmin, (_req: Request, res: Response): void => {
+router.get('/export/csv', requireAuth, requirePerm('historico', 'view'), (_req: Request, res: Response): void => {
   const data = readData()
   const membroMap = new Map(data.membros.map(m => [m.id, m]))
 
@@ -36,7 +36,7 @@ router.get('/export/csv', requireAuth, modOrAdmin, (_req: Request, res: Response
   res.send('﻿' + rows.join('\n'))
 })
 
-router.get('/', requireAuth, (req: Request, res: Response): void => {
+router.get('/', requireAuth, requirePerm('historico', 'view'), (req: Request, res: Response): void => {
   const data = readData()
   const { qru, resultado, page, limit } = req.query
 
@@ -56,7 +56,7 @@ router.get('/', requireAuth, (req: Request, res: Response): void => {
   res.json({ acoes: paginated, total, page: pageNum, limit: limitNum })
 })
 
-router.post('/', requireAuth, noViewOnly, validateBody(acaoSchema), (req: Request, res: Response): void => {
+router.post('/', requireAuth, requirePerm('patrulha', 'edit'), validateBody(acaoSchema), (req: Request, res: Response): void => {
   const body = req.body as Omit<Acao, 'id'>
   const data = readData()
 
@@ -90,7 +90,7 @@ router.post('/', requireAuth, noViewOnly, validateBody(acaoSchema), (req: Reques
   res.status(201).json(novaAcao)
 })
 
-router.delete('/:id', requireAuth, modOrAdmin, (req: Request, res: Response): void => {
+router.delete('/:id', requireAuth, requirePerm('historico', 'edit'), (req: Request, res: Response): void => {
   const id = parseInt(String(req.params.id), 10)
   if (isNaN(id)) { res.status(400).json({ error: 'ID inválido' }); return }
 

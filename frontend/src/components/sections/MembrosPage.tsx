@@ -13,8 +13,8 @@ import { Plus, Trash2, Users } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { useMembros, useCreateMembro, useUpdateMembro, useDeleteMembro, useReorderMembros } from '@/hooks/useMembros'
 import { usePatentes, useCargos } from '@/hooks/useConfig'
-import { useAuthStore } from '@/store/authStore'
 import { useUIStore } from '@/store/uiStore'
+import { usePerms } from '@/hooks/usePermissoes'
 import { useDebounce } from '@/hooks/useDebounce'
 import GlowCard from '@/components/ui/GlowCard'
 import HudButton from '@/components/ui/HudButton'
@@ -165,7 +165,7 @@ function SortableRow({ membro, index, canEdit, onUpdate, onDelete, patentes, car
 }
 
 export default function MembrosPage() {
-  const { user } = useAuthStore()
+  const { can } = usePerms()
   const { addToast } = useUIStore()
   const { data: membros, isLoading } = useMembros()
   const { data: patentes = [] } = usePatentes()
@@ -179,7 +179,7 @@ export default function MembrosPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [localOrder, setLocalOrder] = useState<number[] | null>(null)
 
-  const canEdit = user?.nivel === 'admin' || user?.nivel === 'moderador'
+  const canEdit = can('membros', 'edit')
 
   const sensors = useSensors(
     useSensor(PointerSensor),

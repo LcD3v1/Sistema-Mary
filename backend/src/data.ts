@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import bcrypt from 'bcrypt'
 import { MaryData } from './types'
+import { DEFAULT_PERMISSOES, normalizePermissoes } from './permissoes'
 
 const DATA_PATH = process.env.DATA_PATH
   ? path.resolve(process.env.DATA_PATH)
@@ -27,6 +28,7 @@ const DEFAULT_DATA: MaryData = {
   patentes: ['Recruta', 'Motociclista', 'Cabo Moto', 'Sargento Moto', 'Tenente', 'Capitão'],
   cargos: ['Probatório', 'Operador', 'Instrutor', 'Supervisor', 'Sub-Comandante', 'Comandante'],
   contas: [],
+  permissoes: JSON.parse(JSON.stringify(DEFAULT_PERMISSOES)),
   nextMemId: 300,
   nextAcId: 1,
   nextAprId: 1,
@@ -46,7 +48,9 @@ export function readData(): MaryData {
     const raw = fs.readFileSync(DATA_PATH, 'utf-8')
     const parsed = JSON.parse(raw) as MaryData
     // Garante que campos novos existam em dados legados
-    return { ...DEFAULT_DATA, ...parsed }
+    const merged = { ...DEFAULT_DATA, ...parsed }
+    merged.permissoes = normalizePermissoes(parsed.permissoes)
+    return merged
   } catch {
     return JSON.parse(JSON.stringify(DEFAULT_DATA))
   }

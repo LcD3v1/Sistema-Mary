@@ -2,7 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from '@/lib/queryClient'
 import { useAuthStore } from '@/store/authStore'
-import type { Nivel } from '@/types'
+import { usePerms } from '@/hooks/usePermissoes'
+import LoadingHud from '@/components/ui/LoadingHud'
 import AppShell from '@/components/layout/AppShell'
 import LoginPage from '@/components/sections/LoginPage'
 import DashboardPage from '@/components/sections/DashboardPage'
@@ -16,35 +17,41 @@ import ApreensaoPage from '@/components/sections/ApreensaoPage'
 import RelatorioMembrosPage from '@/components/sections/RelatorioMembrosPage'
 import ConfiguracoesPage from '@/components/sections/ConfiguracoesPage'
 
-export const RANK: Record<Nivel, number> = { view_only: -1, membro: 0, moderador: 1, admin: 2 }
-
-interface ProtectedRouteProps {
-  children: React.ReactNode
-  minNivel?: Nivel
-  allowViewOnly?: boolean
-}
-
-function ProtectedRoute({ children, minNivel = 'membro', allowViewOnly = false }: ProtectedRouteProps) {
+// Exige login. Se receber `tab`, também exige permissão de visualização.
+function ProtectedRoute({ children, tab }: { children: React.ReactNode; tab?: string }) {
   const { token, user } = useAuthStore()
+  const { can, firstAllowedPath, ready } = usePerms()
   if (!token || !user) return <Navigate to="/login" replace />
-
-  if (user.nivel === 'view_only') {
-    return allowViewOnly ? <>{children}</> : <Navigate to="/estatisticas" replace />
+  if (tab) {
+    if (!ready) return <LoadingHud />
+    if (!can(tab, 'view')) return <Navigate to={firstAllowedPath()} replace />
   }
-
-  if (RANK[user.nivel] < RANK[minNivel]) return <Navigate to="/dashboard" replace />
   return <>{children}</>
 }
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
-  const { token, user } = useAuthStore()
-  if (token) return <Navigate to={user?.nivel === 'view_only' ? '/estatisticas' : '/dashboard'} replace />
+  const { token } = useAuthStore()
+  const { firstAllowedPath, ready } = usePerms()
+  if (token) {
+    if (!ready) return <LoadingHud />
+    return <Navigate to={firstAllowedPath()} replace />
+  }
   return <>{children}</>
 }
 
 function RootRedirect() {
-  const { user } = useAuthStore()
-  return <Navigate to={user?.nivel === 'view_only' ? '/estatisticas' : '/dashboard'} replace />
+  const { firstAllowedPath, ready } = usePerms()
+  if (!ready) return <LoadingHud />
+  return <Navigate to={firstAllowedPath()} replace />
+}
+
+function SemAcesso() {
+  return (
+    <div className="p-10 text-center">
+      <p className="font-orbitron text-gold tracking-widest mb-2">SEM ACESSO</p>
+      <p className="font-mono text-xs text-txt2">Sua conta não tem permissão para visualizar nenhuma área. Contate um administrador.</p>
+    </div>
+  )
 }
 
 export default function App() {
@@ -56,37 +63,42 @@ export default function App() {
             <PublicRoute><LoginPage /></PublicRoute>
           } />
           <Route path="/" element={
-            <ProtectedRoute allowViewOnly={true}><AppShell /></ProtectedRoute>
+            <ProtectedRoute><AppShell /></ProtectedRoute>
           }>
             <Route index element={<RootRedirect />} />
             <Route path="dashboard" element={
-              <ProtectedRoute allowViewOnly={false}><DashboardPage /></ProtectedRoute>
+              <ProtectedRoute tab="dashboard"><DashboardPage /></ProtectedRoute>
             } />
             <Route path="acoes/nova" element={
-              <ProtectedRoute minNivel="membro"><RegistrarAcaoPage /></ProtectedRoute>
+              <ProtectedRoute tab="patrulha"><RegistrarAcaoPage /></ProtectedRoute>
             } />
             <Route path="acoes/historico" element={
-              <ProtectedRoute allowViewOnly={false}><HistoricoPage /></ProtectedRoute>
+              <ProtectedRoute tab="historico"><HistoricoPage /></ProtectedRoute>
             } />
-            <Route path="estatisticas" element={<EstatisticasPage />} />
+            <Route path="estatisticas" element={
+              <ProtectedRoute tab="relatorios"><EstatisticasPage /></ProtectedRoute>
+            } />
             <Route path="recrutamento" element={
-              <ProtectedRoute minNivel="moderador"><RecrutamentoPage /></ProtectedRoute>
+              <ProtectedRoute tab="recrutamento"><RecrutamentoPage /></ProtectedRoute>
             } />
             <Route path="recrutamento/:id" element={
-              <ProtectedRoute minNivel="moderador"><RecrutaCandidatoPage /></ProtectedRoute>
+              <ProtectedRoute tab="recrutamento"><RecrutaCandidatoPage /></ProtectedRoute>
             } />
             <Route path="apreensao" element={
-              <ProtectedRoute minNivel="membro"><ApreensaoPage /></ProtectedRoute>
+              <ProtectedRoute tab="apreensao"><ApreensaoPage /></ProtectedRoute>
             } />
-            <Route path="membros" element={<MembrosPage />} />
+            <Route path="membros" element={
+              <ProtectedRoute tab="membros"><MembrosPage /></ProtectedRoute>
+            } />
             <Route path="relatorios-membros" element={
-              <ProtectedRoute minNivel="membro"><RelatorioMembrosPage /></ProtectedRoute>
+              <ProtectedRoute tab="relatoriosMembros"><RelatorioMembrosPage /></ProtectedRoute>
             } />
             <Route path="configuracoes" element={
-              <ProtectedRoute minNivel="moderador"><ConfiguracoesPage /></ProtectedRoute>
+              <ProtectedRoute tab="config"><ConfiguracoesPage /></ProtectedRoute>
             } />
+            <Route path="sem-acesso" element={<SemAcesso />} />
           </Route>
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>

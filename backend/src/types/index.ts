@@ -95,6 +95,13 @@ export interface Recruta {
   observacoes?: string
 }
 
+export interface TabPerm {
+  view: boolean
+  edit: boolean
+}
+// nivel -> tabId -> { view, edit }
+export type Permissoes = Record<string, Record<string, TabPerm>>
+
 export interface RelatorioMembro {
   id: number
   data: string
@@ -119,6 +126,7 @@ export interface MaryData {
   patentes: string[]
   cargos: string[]
   contas: Conta[]
+  permissoes: Permissoes
   nextMemId: number
   nextAcId: number
   nextAprId: number

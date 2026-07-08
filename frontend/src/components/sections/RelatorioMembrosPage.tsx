@@ -6,7 +6,7 @@ import HudButton from '@/components/ui/HudButton'
 import { useMembros } from '@/hooks/useMembros'
 import { useRelatos, useCreateRelato, useDeleteRelato } from '@/hooks/useRelatos'
 import { useUIStore } from '@/store/uiStore'
-import { useAuthStore } from '@/store/authStore'
+import { usePerms } from '@/hooks/usePermissoes'
 
 const hoje = () => new Date().toISOString().split('T')[0]
 
@@ -17,8 +17,9 @@ function notaColor(n: number): string {
 }
 
 export default function RelatorioMembrosPage() {
-  const { user } = useAuthStore()
-  const podeExcluir = user?.nivel === 'admin' || user?.nivel === 'moderador'
+  const { can } = usePerms()
+  const podeEditar = can('relatoriosMembros', 'edit')
+  const podeExcluir = podeEditar
 
   const { data: membros = [] } = useMembros()
   const { data: relatos = [] } = useRelatos()
@@ -91,6 +92,7 @@ export default function RelatorioMembrosPage() {
       />
 
       {/* Formulário */}
+      {podeEditar && (
       <GlowCard>
         <div className="p-1">
           <h3 className="font-orbitron text-xs text-gold tracking-widest mb-4">NOVO RELATÓRIO</h3>
@@ -135,6 +137,7 @@ export default function RelatorioMembrosPage() {
           </div>
         </div>
       </GlowCard>
+      )}
 
       {/* Lista */}
       <GlowCard>

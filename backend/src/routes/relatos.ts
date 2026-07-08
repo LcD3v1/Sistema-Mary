@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express'
 import { requireAuth } from '../middleware/auth'
-import { modOrAdmin, noViewOnly } from '../middleware/roles'
+import { requirePerm } from '../middleware/permissoes'
 import { validateBody, relatoSchema } from '../middleware/validate'
 import { audit } from '../security/audit'
 import { readData, writeData } from '../data'
@@ -9,14 +9,14 @@ import { RelatorioMembro } from '../types'
 const router = Router()
 
 // Lista todos os relatórios (qualquer conta autenticada pode ver)
-router.get('/', requireAuth, (_req: Request, res: Response): void => {
+router.get('/', requireAuth, requirePerm('relatoriosMembros', 'view'), (_req: Request, res: Response): void => {
   const data = readData()
   const relatos = [...data.relatos].sort((a, b) => b.id - a.id)
   res.json(relatos)
 })
 
 // Cria relatório — TODOS os cargos (membro, moderador, admin) podem relatar
-router.post('/', requireAuth, noViewOnly, validateBody(relatoSchema), (req: Request, res: Response): void => {
+router.post('/', requireAuth, requirePerm('relatoriosMembros', 'edit'), validateBody(relatoSchema), (req: Request, res: Response): void => {
   const body = req.body as Omit<RelatorioMembro, 'id' | 'relatorNome' | 'alvoNome' | 'autor'>
   const data = readData()
 
@@ -50,7 +50,7 @@ router.post('/', requireAuth, noViewOnly, validateBody(relatoSchema), (req: Requ
 })
 
 // Exclui relatório — apenas moderador/admin
-router.delete('/:id', requireAuth, modOrAdmin, (req: Request, res: Response): void => {
+router.delete('/:id', requireAuth, requirePerm('relatoriosMembros', 'edit'), (req: Request, res: Response): void => {
   const id = parseInt(String(req.params.id), 10)
   if (isNaN(id)) { res.status(400).json({ error: 'ID inválido' }); return }
 

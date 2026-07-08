@@ -7,35 +7,31 @@ import {
 import { useAuthStore } from '@/store/authStore'
 import { useUIStore } from '@/store/uiStore'
 import { useLogo } from '@/hooks/useConfig'
+import { usePerms } from '@/hooks/usePermissoes'
 import { DURATION, EASE_SHARP } from '@/lib/motion'
-import type { Nivel } from '@/types'
 
 const NAV_ITEMS = [
-  { to: '/dashboard',          icon: LayoutDashboard, label: 'Dashboard',            section: 'GERAL',     minNivel: 'membro'    as Nivel, viewOnly: false },
-  { to: '/acoes/nova',         icon: PlusCircle,      label: 'Registrar Patrulha',   section: 'GERAL',     minNivel: 'membro'    as Nivel, viewOnly: false },
-  { to: '/acoes/historico',    icon: History,          label: 'Histórico',            section: 'GERAL',     minNivel: 'membro'    as Nivel, viewOnly: false },
-  { to: '/apreensao',          icon: Lock,             label: 'Apreensão',            section: 'OPERAÇÕES', minNivel: 'membro'    as Nivel, viewOnly: false },
-  { to: '/estatisticas',       icon: BarChart2,        label: 'Relatórios',           section: 'OPERAÇÕES', minNivel: 'membro'    as Nivel, viewOnly: true  },
-  { to: '/recrutamento',       icon: UserPlus,         label: 'Recrutamento',         section: 'PESSOAL',   minNivel: 'moderador' as Nivel, viewOnly: false },
-  { to: '/membros',            icon: Users,            label: 'Membros',              section: 'PESSOAL',   minNivel: 'membro'    as Nivel, viewOnly: true  },
-  { to: '/relatorios-membros', icon: ClipboardList,    label: 'Relatório de Membros', section: 'PESSOAL',   minNivel: 'membro'    as Nivel, viewOnly: false },
-  { to: '/configuracoes',      icon: Settings,         label: 'Configurações',        section: 'PESSOAL',   minNivel: 'moderador' as Nivel, viewOnly: false },
+  { to: '/dashboard',          icon: LayoutDashboard, label: 'Dashboard',            section: 'GERAL',     tab: 'dashboard' },
+  { to: '/acoes/nova',         icon: PlusCircle,      label: 'Registrar Patrulha',   section: 'GERAL',     tab: 'patrulha' },
+  { to: '/acoes/historico',    icon: History,          label: 'Histórico',            section: 'GERAL',     tab: 'historico' },
+  { to: '/apreensao',          icon: Lock,             label: 'Apreensão',            section: 'OPERAÇÕES', tab: 'apreensao' },
+  { to: '/estatisticas',       icon: BarChart2,        label: 'Relatórios',           section: 'OPERAÇÕES', tab: 'relatorios' },
+  { to: '/recrutamento',       icon: UserPlus,         label: 'Recrutamento',         section: 'PESSOAL',   tab: 'recrutamento' },
+  { to: '/membros',            icon: Users,            label: 'Membros',              section: 'PESSOAL',   tab: 'membros' },
+  { to: '/relatorios-membros', icon: ClipboardList,    label: 'Relatório de Membros', section: 'PESSOAL',   tab: 'relatoriosMembros' },
+  { to: '/configuracoes',      icon: Settings,         label: 'Configurações',        section: 'PESSOAL',   tab: 'config' },
 ]
-
-const RANK: Record<Nivel, number> = { view_only: -1, membro: 0, moderador: 1, admin: 2 }
 
 export default function Sidebar() {
   const { user } = useAuthStore()
   const { sidebarCollapsed } = useUIStore()
   const { data: logoData } = useLogo()
+  const { can } = usePerms()
   const location = useLocation()
 
   const isViewOnly = user?.nivel === 'view_only'
-  const userRank = user ? (RANK[user.nivel] ?? -1) : 0
 
-  const visibleItems = NAV_ITEMS.filter(item =>
-    isViewOnly ? item.viewOnly : userRank >= RANK[item.minNivel]
-  )
+  const visibleItems = NAV_ITEMS.filter(item => can(item.tab, 'view'))
 
   return (
     <motion.nav

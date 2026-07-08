@@ -88,6 +88,12 @@ export interface AuthUser {
   nivel: Nivel
 }
 
+export interface TabPerm {
+  view: boolean
+  edit: boolean
+}
+export type Permissoes = Record<string, Record<string, TabPerm>>
+
 export interface Apreensao {
   id: number
   data: string

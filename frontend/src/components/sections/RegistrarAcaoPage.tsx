@@ -4,6 +4,7 @@ import { useCreateAcao } from '@/hooks/useAcoes'
 import { useQrus } from '@/hooks/useConfig'
 import { useMembros } from '@/hooks/useMembros'
 import { useUIStore } from '@/store/uiStore'
+import { usePerms } from '@/hooks/usePermissoes'
 import GlowCard from '@/components/ui/GlowCard'
 import HudButton from '@/components/ui/HudButton'
 import LoadingHud from '@/components/ui/LoadingHud'
@@ -22,6 +23,8 @@ const hoje = () => new Date().toISOString().slice(0, 10)
 
 export default function RegistrarAcaoPage() {
   const { addToast } = useUIStore()
+  const { can } = usePerms()
+  const canEdit = can('patrulha', 'edit')
   const { data: qrus, isLoading: qrusLoading } = useQrus()
   const { data: membros, isLoading: membrosLoading } = useMembros()
   const createAcao = useCreateAcao()
@@ -142,7 +145,7 @@ export default function RegistrarAcaoPage() {
           </div>
 
           <div className="flex gap-3">
-            <HudButton onClick={registrar} loading={createAcao.isPending}>
+            <HudButton onClick={registrar} loading={createAcao.isPending} disabled={!canEdit}>
               <span className="flex items-center gap-2"><Send size={15} /> REGISTRAR</span>
             </HudButton>
             <HudButton variant="ghost" onClick={limpar} type="button">LIMPAR</HudButton>

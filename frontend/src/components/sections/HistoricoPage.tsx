@@ -4,7 +4,7 @@ import { Trash2, Filter, History } from 'lucide-react'
 import { useAcoes, useDeleteAcao } from '@/hooks/useAcoes'
 import { useQrus } from '@/hooks/useConfig'
 import { useMembros } from '@/hooks/useMembros'
-import { useAuthStore } from '@/store/authStore'
+import { usePerms } from '@/hooks/usePermissoes'
 import { useUIStore } from '@/store/uiStore'
 import GlowCard from '@/components/ui/GlowCard'
 import HudButton from '@/components/ui/HudButton'
@@ -25,7 +25,7 @@ const OCORR: Record<Ocorrencia, { label: string; color: string }> = {
 const PAGE_SIZE = 20
 
 export default function HistoricoPage() {
-  const { user } = useAuthStore()
+  const { can } = usePerms()
   const { addToast } = useUIStore()
   const [page, setPage] = useState(1)
   const [tipoFilter, setTipoFilter] = useState('')
@@ -36,7 +36,7 @@ export default function HistoricoPage() {
   const { data: membros } = useMembros()
   const deleteAcao = useDeleteAcao()
 
-  const canEdit = user?.nivel === 'admin' || user?.nivel === 'moderador'
+  const canEdit = can('historico', 'edit')
   const membroMap = new Map((membros ?? []).map((m: Membro) => [m.id, m]))
 
   async function handleDelete(id: number) {

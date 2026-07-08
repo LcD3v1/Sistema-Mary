@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express'
 import { requireAuth } from '../middleware/auth'
-import { modOrAdmin, noViewOnly } from '../middleware/roles'
+import { requirePerm } from '../middleware/permissoes'
 import { validateBody, apreensaoSchema } from '../middleware/validate'
 import { audit } from '../security/audit'
 import { readData, writeData } from '../data'
@@ -9,14 +9,14 @@ import { Apreensao } from '../types'
 const router = Router()
 
 // Lista apreensões (qualquer conta autenticada)
-router.get('/', requireAuth, (_req: Request, res: Response): void => {
+router.get('/', requireAuth, requirePerm('apreensao', 'view'), (_req: Request, res: Response): void => {
   const data = readData()
   const apreensoes = [...data.apreensoes].sort((a, b) => b.id - a.id)
   res.json(apreensoes)
 })
 
 // Cria — todos os cargos com acesso (membro/officer, moderador, admin)
-router.post('/', requireAuth, noViewOnly, validateBody(apreensaoSchema), (req: Request, res: Response): void => {
+router.post('/', requireAuth, requirePerm('apreensao', 'edit'), validateBody(apreensaoSchema), (req: Request, res: Response): void => {
   const body = req.body as Omit<Apreensao, 'id'>
   const data = readData()
 
@@ -43,7 +43,7 @@ router.post('/', requireAuth, noViewOnly, validateBody(apreensaoSchema), (req: R
 })
 
 // Atualiza — moderador/admin
-router.put('/:id', requireAuth, noViewOnly, modOrAdmin, validateBody(apreensaoSchema), (req: Request, res: Response): void => {
+router.put('/:id', requireAuth, requirePerm('apreensao', 'edit'), validateBody(apreensaoSchema), (req: Request, res: Response): void => {
   const id = parseInt(String(req.params.id), 10)
   if (isNaN(id)) { res.status(400).json({ error: 'ID inválido' }); return }
 
@@ -72,7 +72,7 @@ router.put('/:id', requireAuth, noViewOnly, modOrAdmin, validateBody(apreensaoSc
 })
 
 // Exclui — moderador/admin
-router.delete('/:id', requireAuth, modOrAdmin, (req: Request, res: Response): void => {
+router.delete('/:id', requireAuth, requirePerm('apreensao', 'edit'), (req: Request, res: Response): void => {
   const id = parseInt(String(req.params.id), 10)
   if (isNaN(id)) { res.status(400).json({ error: 'ID inválido' }); return }
 

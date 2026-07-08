@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from 'react'
+import { Fragment, useEffect, useState, type CSSProperties } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   DndContext, closestCenter, KeyboardSensor, PointerSensor,
@@ -11,8 +11,11 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import {
   Image, List, Briefcase, Bike, Lock, UserPlus, Users,
-  Plus, Trash2, Settings,
+  Plus, Trash2, Settings, ShieldCheck, Eye, Pencil,
 } from 'lucide-react'
+import { usePermissoes, useUpdatePermissoes } from '@/hooks/usePermissoes'
+import { TABS as PERM_TABS, TAB_LABELS as PERM_TAB_LABELS, NIVEIS_EDITAVEIS, NIVEL_LABELS } from '@/lib/permissoes'
+import type { Permissoes } from '@/types'
 import {
   useQrus, useAddQru, useDeleteQru, useReorderQrus,
   useAprCats, useAddAprCat, useDeleteAprCat,
@@ -41,6 +44,7 @@ const TABS = [
   { id: 'qrus',       label: 'Tipos de Patrulha', icon: Bike,  minNivel: 'moderador' },
   { id: 'apreensao',  label: 'Cat. Apreensão', icon: Lock,     minNivel: 'moderador' },
   { id: 'recrutamento', label: 'Cat. Recrutamento', icon: UserPlus, minNivel: 'moderador' },
+  { id: 'permissoes', label: 'Níveis de Acesso', icon: ShieldCheck, minNivel: 'admin' },
   { id: 'contas',     label: 'Contas',         icon: Users,    minNivel: 'admin' },
 ] as const
 
@@ -173,6 +177,98 @@ function ListEditor({
           <p className="font-mono text-xs text-txt3 text-center py-4">Nenhum item cadastrado</p>
         )}
       </div>
+    </div>
+  )
+}
+
+function NiveisAcessoEditor() {
+  const { data: perms } = usePermissoes()
+  const updatePerms = useUpdatePermissoes()
+  const addToast = useUIStore(s => s.addToast)
+  const [matrix, setMatrix] = useState<Permissoes | null>(null)
+
+  useEffect(() => {
+    if (perms && !matrix) setMatrix(JSON.parse(JSON.stringify(perms)))
+  }, [perms, matrix])
+
+  if (!matrix) return <p className="font-mono text-xs text-txt3">Carregando permissões...</p>
+
+  function toggle(nivel: string, tab: string, field: 'view' | 'edit') {
+    setMatrix(prev => {
+      if (!prev) return prev
+      const next = JSON.parse(JSON.stringify(prev)) as Permissoes
+      if (!next[nivel]) next[nivel] = {}
+      if (!next[nivel][tab]) next[nivel][tab] = { view: false, edit: false }
+      const cell = next[nivel][tab]
+      const val = !cell[field]
+      cell[field] = val
+      if (field === 'edit' && val) cell.view = true      // editar exige ver
+      if (field === 'view' && !val) cell.edit = false     // sem ver, sem editar
+      return next
+    })
+  }
+
+  function salvar() {
+    if (!matrix) return
+    updatePerms.mutate(matrix, {
+      onSuccess: () => addToast('success', 'Permissões salvas!'),
+      onError: () => addToast('error', 'Erro ao salvar permissões'),
+    })
+  }
+
+  return (
+    <div>
+      <h3 className="font-orbitron text-xs text-gold tracking-wider mb-1">NÍVEIS DE ACESSO</h3>
+      <p className="font-mono text-[11px] text-txt3 mb-4">
+        Marque quais abas cada nível pode <b className="text-txt2">ver</b> e <b className="text-txt2">editar</b>.
+        O Admin sempre tem acesso total.
+      </p>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm border-collapse">
+          <thead>
+            <tr className="border-b border-bdr">
+              <th className="text-left font-mono text-[10px] text-txt3 tracking-wider px-3 py-2">ABA</th>
+              {NIVEIS_EDITAVEIS.map(n => (
+                <th key={n} colSpan={2} className="text-center font-mono text-[10px] text-gold tracking-wider px-3 py-2 border-l border-bdr">
+                  {NIVEL_LABELS[n]}
+                </th>
+              ))}
+            </tr>
+            <tr className="border-b border-bdr">
+              <th></th>
+              {NIVEIS_EDITAVEIS.map(n => (
+                <Fragment key={n}>
+                  <th className="font-mono text-[9px] text-txt3 px-2 py-1 border-l border-bdr"><span className="flex items-center justify-center gap-1"><Eye size={10} /> Ver</span></th>
+                  <th className="font-mono text-[9px] text-txt3 px-2 py-1"><span className="flex items-center justify-center gap-1"><Pencil size={10} /> Editar</span></th>
+                </Fragment>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {PERM_TABS.map(tab => (
+              <tr key={tab} className="border-b border-bdr/50 hover:bg-bdr/30">
+                <td className="font-mono text-xs text-txt px-3 py-2 whitespace-nowrap">{PERM_TAB_LABELS[tab]}</td>
+                {NIVEIS_EDITAVEIS.map(n => {
+                  const cell = matrix[n]?.[tab] ?? { view: false, edit: false }
+                  return (
+                    <Fragment key={n}>
+                      <td className="text-center px-2 py-2 border-l border-bdr">
+                        <input type="checkbox" checked={cell.view} onChange={() => toggle(n, tab, 'view')} className="accent-gold w-4 h-4 cursor-pointer" />
+                      </td>
+                      <td className="text-center px-2 py-2">
+                        <input type="checkbox" checked={cell.edit} onChange={() => toggle(n, tab, 'edit')} className="accent-gold w-4 h-4 cursor-pointer" />
+                      </td>
+                    </Fragment>
+                  )
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <HudButton onClick={salvar} loading={updatePerms.isPending} className="mt-5">
+        SALVAR PERMISSÕES
+      </HudButton>
     </div>
   )
 }
@@ -381,6 +477,9 @@ export default function ConfiguracoesPage() {
               </div>
             </div>
           )}
+
+          {/* Níveis de Acesso (admin only) */}
+          {activeTab === 'permissoes' && <NiveisAcessoEditor />}
 
           {/* Contas (admin only) */}
           {activeTab === 'contas' && (

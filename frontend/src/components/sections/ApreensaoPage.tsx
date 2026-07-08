@@ -11,16 +11,16 @@ import {
   type NovaApreensao,
 } from '@/hooks/useApreensoes'
 import { useUIStore } from '@/store/uiStore'
-import { useAuthStore } from '@/store/authStore'
+import { usePerms } from '@/hooks/usePermissoes'
 import type { Apreensao } from '@/types'
 
 const hoje = () => new Date().toISOString().split('T')[0]
 const ym = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
 
 export default function ApreensaoPage() {
-  const { user } = useAuthStore()
-  const podeEditar = user?.nivel === 'admin' || user?.nivel === 'moderador'
-  const podeAdicionar = !!user && user.nivel !== 'view_only'
+  const { can } = usePerms()
+  const podeEditar = can('apreensao', 'edit')
+  const podeAdicionar = can('apreensao', 'edit')
 
   const { data: membros = [] } = useMembros()
   const { data: cats = [] } = useAprCats()

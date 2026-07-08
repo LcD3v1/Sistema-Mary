@@ -1,8 +1,10 @@
 import { Router, Request, Response } from 'express'
 import bcrypt from 'bcrypt'
 import { requireAuth } from '../middleware/auth'
-import { modOrAdmin, adminOnly } from '../middleware/roles'
+import { adminOnly } from '../middleware/roles'
+import { requirePerm } from '../middleware/permissoes'
 import { criticalLimiter } from '../middleware/rateLimiter'
+import { normalizePermissoes } from '../permissoes'
 import {
   validateBody,
   qruSchema, patenteSchema, cargoSchema, aprCatSchema,
@@ -20,7 +22,7 @@ const router = Router()
 
 router.get('/qrus', requireAuth, (_req, res) => res.json(readData().qrus))
 
-router.post('/qrus', requireAuth, modOrAdmin, validateBody(qruSchema), (req: Request, res: Response): void => {
+router.post('/qrus', requireAuth, requirePerm('config', 'edit'), validateBody(qruSchema), (req: Request, res: Response): void => {
   const { nome } = req.body as { nome: string }
   const data = readData()
   if (data.qrus.includes(nome)) { res.status(409).json({ error: 'QRU já existe' }); return }
@@ -30,7 +32,7 @@ router.post('/qrus', requireAuth, modOrAdmin, validateBody(qruSchema), (req: Req
   res.status(201).json(data.qrus)
 })
 
-router.put('/qrus/reorder', requireAuth, modOrAdmin, validateBody(reorderQruSchema), (req: Request, res: Response): void => {
+router.put('/qrus/reorder', requireAuth, requirePerm('config', 'edit'), validateBody(reorderQruSchema), (req: Request, res: Response): void => {
   const { qrus } = req.body as { qrus: string[] }
   const data = readData()
   const current = new Set(data.qrus)
@@ -48,7 +50,7 @@ router.put('/qrus/reorder', requireAuth, modOrAdmin, validateBody(reorderQruSche
   res.json(data.qrus)
 })
 
-router.delete('/qrus/:nome', requireAuth, modOrAdmin, (req: Request, res: Response): void => {
+router.delete('/qrus/:nome', requireAuth, requirePerm('config', 'edit'), (req: Request, res: Response): void => {
   const nome = String(req.params.nome).slice(0, 50)
   const data = readData()
   data.qrus = data.qrus.filter(q => q !== nome)
@@ -61,7 +63,7 @@ router.delete('/qrus/:nome', requireAuth, modOrAdmin, (req: Request, res: Respon
 
 router.get('/apr-cats', requireAuth, (_req, res) => res.json(readData().aprCats))
 
-router.post('/apr-cats', requireAuth, modOrAdmin, validateBody(aprCatSchema), (req: Request, res: Response): void => {
+router.post('/apr-cats', requireAuth, requirePerm('config', 'edit'), validateBody(aprCatSchema), (req: Request, res: Response): void => {
   const { nome } = req.body as { nome: string }
   const data = readData()
   if (data.aprCats.includes(nome)) { res.status(409).json({ error: 'Categoria já existe' }); return }
@@ -71,7 +73,7 @@ router.post('/apr-cats', requireAuth, modOrAdmin, validateBody(aprCatSchema), (r
   res.status(201).json(data.aprCats)
 })
 
-router.delete('/apr-cats/:nome', requireAuth, modOrAdmin, (req: Request, res: Response): void => {
+router.delete('/apr-cats/:nome', requireAuth, requirePerm('config', 'edit'), (req: Request, res: Response): void => {
   const nome = String(req.params.nome).slice(0, 60)
   const data = readData()
   data.aprCats = data.aprCats.filter(c => c !== nome)
@@ -84,7 +86,7 @@ router.delete('/apr-cats/:nome', requireAuth, modOrAdmin, (req: Request, res: Re
 
 router.get('/patentes', requireAuth, (_req, res) => res.json(readData().patentes))
 
-router.post('/patentes', requireAuth, modOrAdmin, validateBody(patenteSchema), (req: Request, res: Response): void => {
+router.post('/patentes', requireAuth, requirePerm('config', 'edit'), validateBody(patenteSchema), (req: Request, res: Response): void => {
   const { nome } = req.body as { nome: string }
   const data = readData()
   data.patentes.push(nome)
@@ -93,7 +95,7 @@ router.post('/patentes', requireAuth, modOrAdmin, validateBody(patenteSchema), (
   res.status(201).json(data.patentes)
 })
 
-router.put('/patentes/reorder', requireAuth, modOrAdmin, validateBody(reorderPatenteSchema), (req: Request, res: Response): void => {
+router.put('/patentes/reorder', requireAuth, requirePerm('config', 'edit'), validateBody(reorderPatenteSchema), (req: Request, res: Response): void => {
   const { patentes } = req.body as { patentes: string[] }
   const data = readData()
   data.patentes = patentes.map(p => String(p).slice(0, 50))
@@ -114,7 +116,7 @@ router.delete('/patentes/:nome', requireAuth, adminOnly, (req: Request, res: Res
 
 router.get('/cargos', requireAuth, (_req, res) => res.json(readData().cargos))
 
-router.post('/cargos', requireAuth, modOrAdmin, validateBody(cargoSchema), (req: Request, res: Response): void => {
+router.post('/cargos', requireAuth, requirePerm('config', 'edit'), validateBody(cargoSchema), (req: Request, res: Response): void => {
   const { nome } = req.body as { nome: string }
   const data = readData()
   data.cargos.push(nome)
@@ -224,7 +226,7 @@ router.delete('/contas/:id', requireAuth, adminOnly, (req: Request, res: Respons
 
 router.get('/logo', (_req, res) => res.json({ logo: readData().logo }))
 
-router.put('/logo', requireAuth, modOrAdmin, validateBody(logoSchema), (req: Request, res: Response): void => {
+router.put('/logo', requireAuth, requirePerm('config', 'edit'), validateBody(logoSchema), (req: Request, res: Response): void => {
   const { logo } = req.body as { logo: string }
   const data = readData()
   data.logo = logo
@@ -233,7 +235,7 @@ router.put('/logo', requireAuth, modOrAdmin, validateBody(logoSchema), (req: Req
   res.json({ ok: true })
 })
 
-router.delete('/logo', requireAuth, modOrAdmin, (_req, res) => {
+router.delete('/logo', requireAuth, requirePerm('config', 'edit'), (_req, res) => {
   const data = readData()
   data.logo = ''
   writeData(data)
@@ -245,7 +247,7 @@ router.delete('/logo', requireAuth, modOrAdmin, (_req, res) => {
 
 router.get('/recrutamento', requireAuth, (_req, res) => res.json(readData().recCfg))
 
-router.put('/recrutamento', requireAuth, modOrAdmin, validateBody(recCfgSchema), (req: Request, res: Response): void => {
+router.put('/recrutamento', requireAuth, requirePerm('config', 'edit'), validateBody(recCfgSchema), (req: Request, res: Response): void => {
   const data = readData()
   const { notaMinima, categorias } = req.body
   if (typeof notaMinima === 'number') data.recCfg.notaMinima = notaMinima
@@ -288,6 +290,20 @@ router.post('/restore', requireAuth, adminOnly, criticalLimiter, (req: Request, 
   writeData(body as MaryData)
   audit('RESTORE_EXECUTED', req, `Membros: ${body.membros?.length} | Ações: ${body.acoes?.length}`)
   res.json({ ok: true })
+})
+
+// ── Permissões (matriz nível × aba) ─────────────────────────────────────────────
+
+// Qualquer conta autenticada lê (o frontend usa pra montar menu/edição)
+router.get('/permissoes', requireAuth, (_req, res) => res.json(readData().permissoes))
+
+// Só admin altera
+router.put('/permissoes', requireAuth, adminOnly, (req: Request, res: Response): void => {
+  const data = readData()
+  data.permissoes = normalizePermissoes(req.body as MaryData['permissoes'])
+  writeData(data)
+  audit('CONFIG_UPDATED', req, 'Permissões de acesso atualizadas')
+  res.json(data.permissoes)
 })
 
 // ── Audit Log (admin only) ────────────────────────────────────────────────────
