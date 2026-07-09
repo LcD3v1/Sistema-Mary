@@ -15,6 +15,7 @@ import RecrutaCandidatoPage from '@/components/sections/RecrutaCandidatoPage'
 import MembrosPage from '@/components/sections/MembrosPage'
 import ApreensaoPage from '@/components/sections/ApreensaoPage'
 import RelatorioMembrosPage from '@/components/sections/RelatorioMembrosPage'
+import RelatoriosRegistradosPage from '@/components/sections/RelatoriosRegistradosPage'
 import ConfiguracoesPage from '@/components/sections/ConfiguracoesPage'
 
 // Exige login. Se receber `tab`, também exige permissão de visualização.
@@ -92,6 +93,9 @@ export default function App() {
             } />
             <Route path="relatorios-membros" element={
               <ProtectedRoute tab="relatoriosMembros"><RelatorioMembrosPage /></ProtectedRoute>
+            } />
+            <Route path="relatorios-registrados" element={
+              <ProtectedRoute tab="relatoriosRegistrados"><RelatoriosRegistradosPage /></ProtectedRoute>
             } />
             <Route path="configuracoes" element={
               <ProtectedRoute tab="config"><ConfiguracoesPage /></ProtectedRoute>

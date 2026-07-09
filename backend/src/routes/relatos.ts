@@ -9,7 +9,7 @@ import { RelatorioMembro } from '../types'
 const router = Router()
 
 // Lista todos os relatórios (qualquer conta autenticada pode ver)
-router.get('/', requireAuth, requirePerm('relatoriosMembros', 'view'), (_req: Request, res: Response): void => {
+router.get('/', requireAuth, requirePerm('relatoriosRegistrados', 'view'), (_req: Request, res: Response): void => {
   const data = readData()
   const relatos = [...data.relatos].sort((a, b) => b.id - a.id)
   res.json(relatos)
@@ -50,7 +50,7 @@ router.post('/', requireAuth, requirePerm('relatoriosMembros', 'edit'), validate
 })
 
 // Exclui relatório — apenas moderador/admin
-router.delete('/:id', requireAuth, requirePerm('relatoriosMembros', 'edit'), (req: Request, res: Response): void => {
+router.delete('/:id', requireAuth, requirePerm('relatoriosRegistrados', 'edit'), (req: Request, res: Response): void => {
   const id = parseInt(String(req.params.id), 10)
   if (isNaN(id)) { res.status(400).json({ error: 'ID inválido' }); return }
 

@@ -10,6 +10,7 @@ export const TABS = [
   'recrutamento',
   'membros',
   'relatoriosMembros',
+  'relatoriosRegistrados',
   'config',
 ] as const
 
@@ -25,6 +26,7 @@ export const TAB_LABELS: Record<string, string> = {
   recrutamento:      'Recrutamento',
   membros:           'Membros',
   relatoriosMembros: 'Relatório de Membros',
+  relatoriosRegistrados: 'Relatórios Registrados',
   config:            'Configurações',
 }
 
@@ -42,6 +44,7 @@ export const DEFAULT_PERMISSOES: Permissoes = {
     recrutamento:      P(true,  true),
     membros:           P(true,  true),
     relatoriosMembros: P(true,  true),
+    relatoriosRegistrados: P(true, true),
     config:            P(true,  true),
   },
   membro: {
@@ -53,6 +56,7 @@ export const DEFAULT_PERMISSOES: Permissoes = {
     recrutamento:      P(false, false),
     membros:           P(true,  false),
     relatoriosMembros: P(true,  true),
+    relatoriosRegistrados: P(false, false),
     config:            P(false, false),
   },
   view_only: {
@@ -64,6 +68,7 @@ export const DEFAULT_PERMISSOES: Permissoes = {
     recrutamento:      P(false, false),
     membros:           P(true,  false),
     relatoriosMembros: P(false, false),
+    relatoriosRegistrados: P(false, false),
     config:            P(false, false),
   },
 }

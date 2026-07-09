@@ -8,6 +8,7 @@ export const TABS = [
   'recrutamento',
   'membros',
   'relatoriosMembros',
+  'relatoriosRegistrados',
   'config',
 ] as const
 
@@ -22,6 +23,7 @@ export const TAB_LABELS: Record<TabId, string> = {
   recrutamento:      'Recrutamento',
   membros:           'Membros',
   relatoriosMembros: 'Relatório de Membros',
+  relatoriosRegistrados: 'Relatórios Registrados',
   config:            'Configurações',
 }
 
@@ -35,6 +37,7 @@ export const TAB_PATH: Record<TabId, string> = {
   recrutamento:      '/recrutamento',
   membros:           '/membros',
   relatoriosMembros: '/relatorios-membros',
+  relatoriosRegistrados: '/relatorios-registrados',
   config:            '/configuracoes',
 }
 

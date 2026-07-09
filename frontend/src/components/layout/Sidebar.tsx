@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { NavLink, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, PlusCircle, History, BarChart2,
-  Users, Settings, UserPlus, Eye, ClipboardList, Lock,
+  Users, Settings, UserPlus, Eye, ClipboardList, Lock, FileText,
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useUIStore } from '@/store/uiStore'
@@ -19,6 +19,7 @@ const NAV_ITEMS = [
   { to: '/recrutamento',       icon: UserPlus,         label: 'Recrutamento',         section: 'PESSOAL',   tab: 'recrutamento' },
   { to: '/membros',            icon: Users,            label: 'Membros',              section: 'PESSOAL',   tab: 'membros' },
   { to: '/relatorios-membros', icon: ClipboardList,    label: 'Relatório de Membros', section: 'PESSOAL',   tab: 'relatoriosMembros' },
+  { to: '/relatorios-registrados', icon: FileText,     label: 'Relatórios Registrados', section: 'PESSOAL', tab: 'relatoriosRegistrados' },
   { to: '/configuracoes',      icon: Settings,         label: 'Configurações',        section: 'PESSOAL',   tab: 'config' },
 ]
 
