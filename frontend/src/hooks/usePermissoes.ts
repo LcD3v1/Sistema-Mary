@@ -6,9 +6,11 @@ import { TABS, TAB_PATH, type TabId } from '@/lib/permissoes'
 import type { Permissoes } from '@/types'
 
 export function usePermissoes() {
+  const token = useAuthStore(s => s.token)
   return useQuery<Permissoes>({
     queryKey: ['config', 'permissoes'],
     queryFn: async () => (await api.get<Permissoes>('/config/permissoes')).data,
+    enabled: !!token,          // não busca (nem 401) na tela de login
     staleTime: 30_000,
   })
 }

@@ -19,7 +19,10 @@ api.interceptors.response.use(
     if (err.response?.status === 401) {
       useAuthStore.getState().clearAuth()
       const reason = err.response?.data?.error === 'CONTA_DESATIVADA' ? '?reason=desativada' : ''
-      window.location.href = '/login' + reason
+      // Só redireciona se NÃO estivermos já na tela de login (evita loop de reload)
+      if (!window.location.pathname.startsWith('/login')) {
+        window.location.href = '/login' + reason
+      }
     }
     return Promise.reject(err)
   }
