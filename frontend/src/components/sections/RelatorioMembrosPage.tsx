@@ -68,7 +68,7 @@ export default function RelatorioMembrosPage() {
 
       {podeEditar ? (
         <GlowCard>
-          <div className="p-1">
+          <div className="p-5 md:p-6">
             <h3 className="font-orbitron text-xs text-gold tracking-widest mb-4">NOVO RELATÓRIO</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
               <div>

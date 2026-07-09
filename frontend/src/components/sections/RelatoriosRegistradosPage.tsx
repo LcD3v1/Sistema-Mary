@@ -56,7 +56,7 @@ export default function RelatoriosRegistradosPage() {
       />
 
       <GlowCard>
-        <div className="p-1">
+        <div className="p-5 md:p-6">
           <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
             <span className="font-mono text-xs text-txt2">{relatosFiltrados.length} registro(s)</span>
             <select value={filtro} onChange={e => setFiltro(e.target.value)} className={selectCls}>
